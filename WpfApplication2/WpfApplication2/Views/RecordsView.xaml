@@ -1,0 +1,261 @@
+﻿<UserControl x:Class="WpfApplication2.Views.RecordsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:domainObjects="clr-namespace:WpfApplication2.DomainObjects"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:WpfApplication2.ViewModels"
+             d:DataContext="{d:DesignInstance d:Type=viewModels:RecordsViewModel}"
+             d:DesignHeight="800"
+             d:DesignWidth="300"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="ListBox.Static.Background" Color="#FFFFFFFF" />
+        <SolidColorBrush x:Key="ListBox.Static.Border" Color="#FFABADB3" />
+        <SolidColorBrush x:Key="ListBox.Disabled.Background" Color="#FFFFFFFF" />
+        <SolidColorBrush x:Key="ListBox.Disabled.Border" Color="#FFD9D9D9" />
+        <Style x:Key="ListViewStyle1" TargetType="{x:Type ListView}">
+            <Setter Property="Background" Value="{StaticResource ListBox.Static.Background}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ListBox.Static.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.CanContentScroll" Value="true" />
+            <Setter Property="ScrollViewer.PanningMode" Value="Both" />
+            <Setter Property="Stylus.IsFlicksEnabled" Value="False" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListView}">
+                        <Border x:Name="Bd"
+                                HorizontalAlignment="Stretch"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="1"
+                                SnapsToDevicePixels="true">
+                            <ScrollViewer Focusable="false" Padding="{TemplateBinding Padding}">
+                                <ItemsPresenter HorizontalAlignment="Stretch" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                            </ScrollViewer>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter TargetName="Bd" Property="Background" Value="{StaticResource ListBox.Disabled.Background}" />
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource ListBox.Disabled.Border}" />
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsGrouping" Value="true" />
+                                    <Condition Property="VirtualizingPanel.IsVirtualizingWhenGrouping" Value="false" />
+                                </MultiTrigger.Conditions>
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <Grid Name="ContentPanel">
+        <ListView HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Stretch"
+                  ItemsSource="{Binding TimeRanges}">
+            <ListView.ItemTemplate>
+                <DataTemplate DataType="domainObjects:TimeRange">
+
+                    <DockPanel>
+                        <Button HorizontalContentAlignment="Stretch"
+                                Command="{Binding DataContext.ExpandCollapse,
+                                                  ElementName=ContentPanel}"
+                                CommandParameter="{Binding}"
+                                DockPanel.Dock="Top">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock HorizontalAlignment="Left" Text="{Binding Name}" />
+                                <Button Grid.Column="1"
+                                        Margin="2"
+                                        HorizontalAlignment="Right"
+                                        Background="Azure"
+                                        Command="{Binding DataContext.Edit,
+                                                          ElementName=ContentPanel}"
+                                        Content="Edit" />
+                            </Grid>
+                        </Button>
+                        <StackPanel DockPanel.Dock="Top" Visibility="{Binding ExpandVisibility}">
+                            <Grid Margin="2" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding CurrentAmount}" />
+                                <TextBlock Grid.Column="1"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding WillSpendAmount}" />
+                                <TextBlock Grid.Column="2"
+                                           HorizontalAlignment="Center"
+                                           Text="{Binding SavedAmount}" />
+                            </Grid>
+                            <Grid Margin="2" HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="50" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           HorizontalAlignment="Center"
+                                           Text="Name" />
+                                <TextBlock Grid.Column="1"
+                                           HorizontalAlignment="Center"
+                                           Text="Amount" />
+                                <TextBlock Grid.Column="2"
+                                           HorizontalAlignment="Center"
+                                           Text="Is Paid" />
+                            </Grid>
+
+                            <ListView HorizontalAlignment="Stretch"
+                                      ItemsSource="{Binding DataContext.CurrenTimeRange.Records,
+                                                            ElementName=ContentPanel}"
+                                      Style="{DynamicResource ListViewStyle1}">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate DataType="domainObjects:Record">
+                                        <Grid Margin="0,5"
+                                              HorizontalAlignment="Stretch"
+                                              Visibility="{Binding Visibility}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="50" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Button Grid.Column="0"
+                                                    Width="30"
+                                                    Margin="2,0,2,0"
+                                                    Background="Red"
+                                                    Command="{Binding DataContext.Remove,
+                                                                      ElementName=ContentPanel}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="-"
+                                                    Foreground="White"
+                                                    Visibility="{Binding DataContext.ShowDeleteButtons,
+                                                                         ElementName=ContentPanel}" />
+
+                                            <TextBlock Grid.Column="1"
+                                                       Margin="2,0"
+                                                       HorizontalAlignment="Stretch"
+                                                       Text="{Binding Name}"
+                                                       TextWrapping="Wrap"
+                                                       Visibility="{Binding DataContext.ShowTextBlocks,
+                                                                            ElementName=ContentPanel}" />
+                                            <TextBox Grid.Column="1"
+                                                     Margin="2,0"
+                                                     Text="{Binding Name,
+                                                                    Mode=TwoWay,
+                                                                    NotifyOnTargetUpdated=True,
+                                                                    UpdateSourceTrigger=PropertyChanged}"
+                                                     Visibility="{Binding DataContext.ShowDeleteButtons,
+                                                                          ElementName=ContentPanel}" />
+                                            <TextBlock Grid.Column="2"
+                                                       Margin="2,0"
+                                                       HorizontalAlignment="Center"
+                                                       Text="{Binding Amount}"
+                                                       Visibility="{Binding DataContext.ShowTextBlocks,
+                                                                            ElementName=ContentPanel}" />
+                                            <TextBox Grid.Column="2"
+                                                     Margin="2,0"
+                                                     HorizontalAlignment="Stretch"
+                                                     HorizontalContentAlignment="Center"
+                                                     Text="{Binding Amount,
+                                                                    Mode=TwoWay,
+                                                                    NotifyOnTargetUpdated=True,
+                                                                    UpdateSourceTrigger=PropertyChanged}"
+                                                     Visibility="{Binding DataContext.ShowDeleteButtons,
+                                                                          ElementName=ContentPanel}" />
+                                            <CheckBox Grid.Column="3"
+                                                      HorizontalAlignment="Center"
+                                                      IsChecked="{Binding IsPaid}" />
+                                            <Button Grid.Row="1"
+                                                    Grid.Column="2"
+                                                    Margin="2"
+                                                    Background="GreenYellow"
+                                                    Command="{Binding DataContext.SaveRecord,
+                                                                      ElementName=ContentPanel}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Save"
+                                                    Visibility="{Binding SaveButtonVisibility}" />
+                                            <Button Grid.Row="1"
+                                                    Grid.Column="1"
+                                                    Margin="2"
+                                                    Background="Red"
+                                                    Command="{Binding DataContext.Cancel,
+                                                                      ElementName=ContentPanel}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Cancel"
+                                                    Foreground="White"
+                                                    Visibility="{Binding SaveButtonVisibility}" />
+
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="50" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <TextBox Grid.Row="0"
+                                         Grid.Column="0"
+                                         Margin="2"
+                                         HorizontalAlignment="Stretch"
+                                         Text="{Binding DataContext.Name,
+                                                        ElementName=ContentPanel}" />
+                                <TextBox Grid.Row="0"
+                                         Grid.Column="1"
+                                         Margin="2"
+                                         HorizontalAlignment="Stretch"
+                                         Text="{Binding DataContext.Amount,
+                                                        ElementName=ContentPanel}" />
+                                <CheckBox Grid.Row="0"
+                                          Grid.Column="2"
+                                          HorizontalAlignment="Center"
+                                          IsChecked="{Binding DataContext.IsPaid,
+                                                              ElementName=ContentPanel}" />
+                                <Button Grid.Row="1"
+                                        Grid.Column="0"
+                                        Margin="2"
+                                        Background="DeepSkyBlue"
+                                        Command="{Binding DataContext.AddTimeRange,
+                                                          ElementName=ContentPanel}"
+                                        CommandParameter="{Binding}"
+                                        Content="New Timerange" />
+                                <Button Grid.Row="1"
+                                        Grid.Column="2"
+                                        Margin="2"
+                                        Background="GreenYellow"
+                                        Command="{Binding DataContext.Add,
+                                                          ElementName=ContentPanel}"
+                                        Content="Save" />
+                            </Grid>
+                        </StackPanel>
+                    </DockPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</UserControl>

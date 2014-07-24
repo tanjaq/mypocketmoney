@@ -1,0 +1,12 @@
+﻿<Window x:Class="WpfApplication2.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:utils="clr-namespace:WpfApplication2.utils"
+        Title="MainWindow"
+        Width="525"
+        Height="800"
+        Background="Azure">
+    <Grid>
+        <utils:MyContentRegion utils:RegionManager.RegionName="ContentRegion" />
+    </Grid>
+</Window>

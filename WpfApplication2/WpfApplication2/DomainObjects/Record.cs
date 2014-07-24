@@ -1,0 +1,127 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Data.Linq.Mapping;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using Newtonsoft.Json;
+using WpfApplication2.Annotations;
+
+namespace WpfApplication2.DomainObjects
+{
+    public class Record : BaseObject
+    {
+        private Visibility _visibility = Visibility.Visible;
+        private Visibility _saveButtonVisibility = Visibility.Collapsed;
+        private ObservableCollection<Record> _childs = new ObservableCollection<Record>();
+        private decimal _amount;
+        [JsonIgnore]
+        public string oldname;
+        [JsonIgnore]
+        public decimal oldAmount;
+        [JsonIgnore]
+        public bool oldPaid;
+        private string _name;
+        private bool _isPaid;
+
+        public Record(string name, decimal amount,bool payd)
+        {
+            oldAmount = _amount = amount;
+            oldname = _name = name;
+            oldPaid = _isPaid = payd;
+        }
+
+        public int TimeRangeId { get; set; }
+
+
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                _name = value;
+                PropertyChangedValidator();
+                OnPropertyChanged();
+            }
+        }
+
+        public void PropertyChangedValidator()
+        {
+            if (Amount == oldAmount && Name == oldname && oldPaid == IsPaid)
+            {
+                SaveButtonVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SaveButtonVisibility = Visibility.Visible;
+            }
+        }
+
+        public decimal Amount
+        {
+            get { return _amount; }
+            set
+            {
+                _amount = value;
+                PropertyChangedValidator();
+                OnPropertyChanged();
+
+            }
+        }
+
+        public bool IsPaid
+        {
+            get { return _isPaid; }
+            set
+            {
+                if (value.Equals(_isPaid)) return;
+                _isPaid = value;
+                OnPropertyChanged();
+                PropertyChangedValidator();
+            }
+        }
+
+        public DateTime? PaidTime { get; set; }
+
+        [JsonIgnore]
+        public Record Parent { get; set; }
+        public long ParentId { get; set; }
+
+        public bool IsRemoved { get; set; }
+
+        public Visibility Visibility
+        {
+            get { return _visibility; }
+            set
+            {
+                _visibility = value;
+                OnPropertyChanged();
+            }
+        }
+        [JsonIgnore]
+        public ObservableCollection<Record> Childs
+        {
+            get { return _childs; }
+            set { _childs = value; }
+        }
+
+        [JsonIgnore]
+        public Visibility SaveButtonVisibility
+        {
+            get { return _saveButtonVisibility; }
+            set
+            {
+                if (value == _saveButtonVisibility) return;
+                _saveButtonVisibility = value;
+                OnPropertyChanged();
+            }
+        }
+
+
+
+    }
+}
