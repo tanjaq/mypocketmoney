@@ -1,0 +1,9 @@
+*.nupkg
+*.dll
+*.pdb
+*.pdb
+WpfApplication2/packages/*
+WpfApplication2/UnitTestProject1/bin/*
+WpfApplication2/UnitTestProject1/obj/*
+WpfApplication2/WpfApplication2/bin/*
+WpfApplication2/WpfApplication2/obj/*

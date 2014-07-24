@@ -36,6 +36,8 @@ namespace WpfApplication2.ViewModels
                 return;
             if (string.IsNullOrEmpty(Name))
                 return;
+            if (currentTimerange == null)
+                currentTimerange = new TimeRange(0);
             var timerange = new TimeRange(0) { Name = Name, InitialAmount = amount, PrevTimeRangeId = currentTimerange.Id };
             RecordsRepository.Save(timerange);
             RegionManager.NavigateUsingViewModel<RecordsViewModel>(RegionNames.ContentRegion, timerange);

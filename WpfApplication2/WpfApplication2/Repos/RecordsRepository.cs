@@ -4,14 +4,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Google.GData.Spreadsheets;
+//using Google.GData.Spreadsheets;
 using WpfApplication2.DomainObjects;
 
 namespace WpfApplication2.Repos
 {
     public class RecordsRepository : IRecordsRepository
     {
-        private SpreadsheetsService service;
+        //private SpreadsheetsService service;
         public RecordsRepository()
         {
 
