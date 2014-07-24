@@ -3,110 +3,122 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v2.Data;
-//using Google.GData.Client;
-//using Google.GData.Documents;
-//using Google.GData.Spreadsheets;
-using File = System.IO.File;
-//using SpreadsheetQuery = Google.GData.Spreadsheets.SpreadsheetQuery;
-
+using Google.Apis.Services;
+using Google.GData.Spreadsheets;
+using Google.Apis.Drive.v2;
+using File = Google.Apis.Drive.v2.Data.File;
 
 namespace WpfApplication2.Repos
 {
     public class GoogleDocsService
     {
         private const string MyPocketMoney = "MyPocketMoney";
-        //private SpreadsheetsService service;
+        private SpreadsheetsService service;
 
         public string mainSpreadsheetEntryuri;
         public GoogleDocsService()
         {
-            //service = new SpreadsheetsService("MyPocketMoney");
-            //service.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
+            service = new SpreadsheetsService("MyPocketMoney");
+            service.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
 
         }
 
-      
-
-        //public SpreadsheetFeed GetSetSpreadSheet()
-        //{
-
-        //    SpreadsheetQuery query = new SpreadsheetQuery();
-        //    SpreadsheetFeed feed = service.Query(query);
-        //    foreach (SpreadsheetEntry entry in feed.Entries)
-        //    {
-        //        if (entry.Title.Text == MyPocketMoney)
-        //        {
-        //            mainSpreadsheetEntryuri = entry.FeedUri;
-        //            return new SpreadsheetFeed(new Uri(mainSpreadsheetEntryuri), service);
-
-        //        }
-        //        //foreach (var worksheet in entry.Worksheets.Entries)
-        //        //{
-
-        //        //    AtomLink cellFeedLink = worksheet.Links.FindService(GDataSpreadsheetsNameTable.CellRel, null);
-
-        //        //    CellQuery query2 = new CellQuery(cellFeedLink.HRef.ToString());
-        //        //    CellFeed feed2= service.Query(query2);
 
 
+        public SpreadsheetFeed GetSetSpreadSheet()
+        {
 
-        //        //    foreach (CellEntry curCell in feed2.Entries)
-        //        //    {
-        //        //        Console.WriteLine("Row {0}, column {1}: {2}", curCell.Cell.Row,
-        //        //            curCell.Cell.Column, curCell.Cell.Value);
-        //        //    }
-        //        //}
-        //    }
-        //    if (mainSpreadsheetEntryuri == null)
-        //    {
+            SpreadsheetQuery query = new SpreadsheetQuery();
+            SpreadsheetFeed feed = service.Query(query);
+            foreach (SpreadsheetEntry entry in feed.Entries)
+            {
+                if (entry.Title.Text == MyPocketMoney)
+                {
+                    mainSpreadsheetEntryuri = entry.FeedUri;
+                    return new SpreadsheetFeed(new Uri(mainSpreadsheetEntryuri), service);
 
-        //        DocumentsService insertservice = new Google.GData.Documents.DocumentsService(MyPocketMoney);
-        //        service.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
+                }
+                //foreach (var worksheet in entry.Worksheets.Entries)
+                //{
 
-        //        Google.GData.Documents.SpreadsheetQuery insertquery = new Google.GData.Documents.SpreadsheetQuery();
-        //        insertquery.Title = MyPocketMoney;
-        //        insertquery.TitleExact = true;
+                //    AtomLink cellFeedLink = worksheet.Links.FindService(GDataSpreadsheetsNameTable.CellRel, null);
 
-        //        Google.GData.Documents.DocumentsFeed insertfeed = insertservice.Query(insertquery);
-        //        Google.GData.Client.AtomEntry entry = insertfeed.Entries[0];
+                //    CellQuery query2 = new CellQuery(cellFeedLink.HRef.ToString());
+                //    CellFeed feed2= service.Query(query2);
 
-        //        var feedUri = new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri);
 
-        //        service.Insert(feedUri, entry);
 
-        //        //var timeranges = new WorksheetEntry();
-        //        //timeranges.Title.Text = "TimeRanges";
-        //        //service.Insert(newSpreadsheedEntry.Feed, timeranges);
+                //    foreach (CellEntry curCell in feed2.Entries)
+                //    {
+                //        Console.WriteLine("Row {0}, column {1}: {2}", curCell.Cell.Row,
+                //            curCell.Cell.Column, curCell.Cell.Value);
+                //    }
+                //}
+            }
+            if (mainSpreadsheetEntryuri == null)
+            {
 
-        //        //var records = new WorksheetEntry();
-        //        //records.Title.Text = "Records";
-        //        //service.Insert(newSpreadsheedEntry.Feed, records);
-        //        //mainSpreadsheetEntryuri = newSpreadsheedEntry.FeedUri;
+                insertFile(MyPocketMoney, MyPocketMoney, null, "application/vnd.google-apps.spreadsheet", MyPocketMoney);
 
-        //    }
+                return GetSetSpreadSheet();
+            }
 
-        //    return new SpreadsheetFeed(new Uri(mainSpreadsheetEntryuri), service);
+            return new SpreadsheetFeed(new Uri(mainSpreadsheetEntryuri), service);
 
-        //}
+        }
+        public static File insertFile(String title, String description, String parentId, String mimeType, String filename)
+        {
 
-        //public void CreateSpreadSheet()
-        //{
+            var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                new ClientSecrets
+                {
+                    ClientId = "403400217676-pcs2mvcgegbgsvjnc3fld9edafq8ppdu.apps.googleusercontent.com",
+                    ClientSecret = "JL622ryC3smnyrfvh08jWESD",
+                },
+                new[] { DriveService.Scope.Drive },
+                "user",
+                CancellationToken.None).Result;
 
-        //    DocumentsService insertservice = new Google.GData.Documents.DocumentsService(MyPocketMoney);
-        //    insertservice.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
+            var service = new DriveService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "Drive API Sample",
+            });            // File's metadata.
+            File body = new File();
+            body.Title = title;
+            body.Description = description;
+            body.MimeType = mimeType;
 
-        //    Google.GData.Documents.SpreadsheetQuery insertquery = new Google.GData.Documents.SpreadsheetQuery();
-        //    insertquery.Title = MyPocketMoney;
-        //    insertquery.TitleExact = true;
+            // Set the parent folder.
+            if (!String.IsNullOrEmpty(parentId))
+            {
+                body.Parents = new List<ParentReference>() { new ParentReference() { Id = parentId } };
+            }
 
-        //    Google.GData.Documents.DocumentsFeed insertfeed = insertservice.Query(insertquery);
-        //    Google.GData.Client.AtomEntry entry = insertfeed.Entries[0];
+            // File's content.
+            byte[] byteArray = System.IO.File.ReadAllBytes(filename);
+            MemoryStream stream = new MemoryStream(byteArray);
+            try
+            {
+                FilesResource.InsertMediaUpload request = service.Files.Insert(body, stream, mimeType);
+                request.Upload();
 
-        //    var feedUri = new Uri(Google.GData.Documents.DocumentsListQuery.documentsBaseUri);
+                File file = request.ResponseBody;
 
-        //    service.Insert(feedUri, entry);
-        //}
+                // Uncomment the following line to print the File ID.
+                // Console.WriteLine("File ID: " + file.Id);
+
+                return file;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("An error occurred: " + e.Message);
+                return null;
+            }
+        }
     }
 }

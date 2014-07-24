@@ -21,8 +21,9 @@ namespace UnitTestProject1
         [TestMethod]
         public void CreateSheet()
         {
-            //GoogleDocsService service = new GoogleDocsService();
-            //service.CreateSpreadSheet();
+            GoogleDocsService service = new GoogleDocsService();
+            var sheet = service.GetSetSpreadSheet();
+            Assert.IsNotNull(sheet);
         }
 
 
