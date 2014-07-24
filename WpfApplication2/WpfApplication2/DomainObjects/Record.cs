@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using Newtonsoft.Json;
 using WpfApplication2.Annotations;
 
 namespace WpfApplication2.DomainObjects
@@ -19,11 +18,8 @@ namespace WpfApplication2.DomainObjects
         private Visibility _saveButtonVisibility = Visibility.Collapsed;
         private ObservableCollection<Record> _childs = new ObservableCollection<Record>();
         private decimal _amount;
-        [JsonIgnore]
         public string oldname;
-        [JsonIgnore]
         public decimal oldAmount;
-        [JsonIgnore]
         public bool oldPaid;
         private string _name;
         private bool _isPaid;
@@ -87,7 +83,6 @@ namespace WpfApplication2.DomainObjects
 
         public DateTime? PaidTime { get; set; }
 
-        [JsonIgnore]
         public Record Parent { get; set; }
         public long ParentId { get; set; }
 
@@ -102,14 +97,12 @@ namespace WpfApplication2.DomainObjects
                 OnPropertyChanged();
             }
         }
-        [JsonIgnore]
         public ObservableCollection<Record> Childs
         {
             get { return _childs; }
             set { _childs = value; }
         }
 
-        [JsonIgnore]
         public Visibility SaveButtonVisibility
         {
             get { return _saveButtonVisibility; }
