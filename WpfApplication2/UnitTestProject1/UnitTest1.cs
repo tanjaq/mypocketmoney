@@ -12,16 +12,10 @@ namespace UnitTestProject1
     [TestClass]
     public class UnitTest1
     {
-        [TestMethod]
-        public void TestGetAllSheets()
-        {
-            GoogleDocsService service = new GoogleDocsService();
-            //var entry = service.GetSetSpreadSheet();
-            //Assert.IsNotNull(entry);
-        }        
+     
         
         [TestMethod]
-        public void TestGeddtAllSheets()
+        public void TestUploadSheet()
         {
             DocumentsService service = new DocumentsService("MyDocumentsListIntegration-v1");
             service.setUserCredentials("jetcarq@gmail.com","sxgbnaqw1");
@@ -41,7 +35,6 @@ namespace UnitTestProject1
                 DocumentsListQuery.documentsBaseUri, entry);
         }
 
-        [DeploymentItem("resources\\MyPocketMoney.xlsx")]
         [TestMethod]
         public void CreateSheet()
         {

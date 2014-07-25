@@ -22,10 +22,13 @@ namespace WpfApplication2.Repos
         private const string MyPocketMoney = "MyPocketMoney";
         private SpreadsheetsService service;
 
-        public string mainSpreadsheetEntryuri;
+        private SpreadsheetEntry mainSpreadSheet;
+        private WorksheetEntry Timeranges;
+        private WorksheetEntry Records;
+
         public GoogleDocsService()
         {
-            service = new SpreadsheetsService("MyPocketMoney");
+            service = new SpreadsheetsService(MyPocketMoney);
             service.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
 
         }
@@ -41,57 +44,51 @@ namespace WpfApplication2.Repos
             {
                 if (entry.Title.Text == MyPocketMoney)
                 {
+                    mainSpreadSheet = entry;
                     return entry;
 
                 }
-                //foreach (var worksheet in entry.Worksheets.Entries)
-                //{
-
-                //    AtomLink cellFeedLink = worksheet.Links.FindService(GDataSpreadsheetsNameTable.CellRel, null);
-
-                //    CellQuery query2 = new CellQuery(cellFeedLink.HRef.ToString());
-                //    CellFeed feed2= service.Query(query2);
-
-
-
-                //    foreach (CellEntry curCell in feed2.Entries)
-                //    {
-                //        Console.WriteLine("Row {0}, column {1}: {2}", curCell.Cell.Row,
-                //            curCell.Cell.Column, curCell.Cell.Value);
-                //    }
-                //}
             }
-            if (mainSpreadsheetEntryuri == null)
+            if (mainSpreadSheet == null)
             {
 
-                DocumentsService documentsService = new DocumentsService("MyDocumentsListIntegration-v1");
+                DocumentsService documentsService = new DocumentsService(MyPocketMoney);
                 documentsService.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
                 // TODO: Authorize the service object for a specific user (see Authorizing requests)
 
-                // Instantiate a DocumentEntry object to be inserted.
                 DocumentEntry documentEntry = new DocumentEntry();
-
-                // Set the document title
                 documentEntry.Title.Text = MyPocketMoney;
 
-                // Add the document category
                 documentEntry.Categories.Add(DocumentEntry.SPREADSHEET_CATEGORY);
 
-                // Make a request to the API and create the document.
-                documentsService.Insert(
-                    DocumentsListQuery.documentsBaseUri, documentEntry);
+                documentsService.Insert(DocumentsListQuery.documentsBaseUri, documentEntry);
 
                 SpreadsheetFeed spreadsheetFeed = service.Query(query);
-                foreach (SpreadsheetEntry entry in spreadsheetFeed.Entries)
+                foreach (SpreadsheetEntry sheet in spreadsheetFeed.Entries)
                 {
-                    if (entry.Title.Text == MyPocketMoney)
+                    if (sheet.Title.Text == MyPocketMoney)
                     {
-                        mainSpreadsheetEntryuri = entry.FeedUri;
-                        return entry;
+                        mainSpreadSheet = sheet;
+                        WorksheetEntry timerangesWorkSheet = new WorksheetEntry();
+                        timerangesWorkSheet.Title.Text = "TimeRanges";
+                        timerangesWorkSheet.Cols = 10;
+                        timerangesWorkSheet.Rows = 2000;
+                        service.Insert(mainSpreadSheet.Worksheets, timerangesWorkSheet);
+                        Timeranges = timerangesWorkSheet;
+
+                        WorksheetEntry recordsWorkSheet = new WorksheetEntry();
+                        recordsWorkSheet.Title.Text = "Records";
+                        recordsWorkSheet.Cols = 10;
+                        recordsWorkSheet.Rows = 2000;
+                        service.Insert(mainSpreadSheet.Worksheets, recordsWorkSheet);
+                        Records = recordsWorkSheet;
+                        return sheet;
 
                     }
                 }
             }
+
+
 
             return null;
 
