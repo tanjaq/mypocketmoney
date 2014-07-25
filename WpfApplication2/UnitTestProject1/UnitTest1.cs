@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Windows;
+using Google.GData.Documents;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using WpfApplication2.DomainObjects;
 using WpfApplication2.Repos;
@@ -16,11 +18,34 @@ namespace UnitTestProject1
             GoogleDocsService service = new GoogleDocsService();
             //var entry = service.GetSetSpreadSheet();
             //Assert.IsNotNull(entry);
+        }        
+        
+        [TestMethod]
+        public void TestGeddtAllSheets()
+        {
+            DocumentsService service = new DocumentsService("MyDocumentsListIntegration-v1");
+            service.setUserCredentials("jetcarq@gmail.com","sxgbnaqw1");
+            // TODO: Authorize the service object for a specific user (see Authorizing requests)
+
+            // Instantiate a DocumentEntry object to be inserted.
+            DocumentEntry entry = new DocumentEntry();
+
+            // Set the document title
+            entry.Title.Text = "Legal Contract2";
+
+            // Add the document category
+            entry.Categories.Add(DocumentEntry.SPREADSHEET_CATEGORY);
+
+            // Make a request to the API and create the document.
+            DocumentEntry newEntry = service.Insert(
+                DocumentsListQuery.documentsBaseUri, entry);
         }
 
+        [DeploymentItem("resources\\MyPocketMoney.xlsx")]
         [TestMethod]
         public void CreateSheet()
         {
+            Console.WriteLine(Assembly.GetExecutingAssembly().Location);
             GoogleDocsService service = new GoogleDocsService();
             var sheet = service.GetSetSpreadSheet();
             Assert.IsNotNull(sheet);

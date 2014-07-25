@@ -11,6 +11,9 @@ using Google.Apis.Drive.v2.Data;
 using Google.Apis.Services;
 using Google.GData.Spreadsheets;
 using File = Google.Apis.Drive.v2.Data.File;
+using Google.GData.Client;
+using Google.GData.Documents;
+using SpreadsheetQuery = Google.GData.Spreadsheets.SpreadsheetQuery;
 
 namespace WpfApplication2.Repos
 {
@@ -29,7 +32,7 @@ namespace WpfApplication2.Repos
 
 
 
-        public SpreadsheetFeed GetSetSpreadSheet()
+        public SpreadsheetEntry GetSetSpreadSheet()
         {
 
             SpreadsheetQuery query = new SpreadsheetQuery();
@@ -38,8 +41,7 @@ namespace WpfApplication2.Repos
             {
                 if (entry.Title.Text == MyPocketMoney)
                 {
-                    mainSpreadsheetEntryuri = entry.FeedUri;
-                    return new SpreadsheetFeed(new Uri(mainSpreadsheetEntryuri), service);
+                    return entry;
 
                 }
                 //foreach (var worksheet in entry.Worksheets.Entries)
@@ -62,63 +64,37 @@ namespace WpfApplication2.Repos
             if (mainSpreadsheetEntryuri == null)
             {
 
-                insertFile(MyPocketMoney, MyPocketMoney, null, "application/vnd.google-apps.spreadsheet", MyPocketMoney);
+                DocumentsService documentsService = new DocumentsService("MyDocumentsListIntegration-v1");
+                documentsService.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
+                // TODO: Authorize the service object for a specific user (see Authorizing requests)
 
-                return GetSetSpreadSheet();
-            }
+                // Instantiate a DocumentEntry object to be inserted.
+                DocumentEntry documentEntry = new DocumentEntry();
 
-            return new SpreadsheetFeed(new Uri(mainSpreadsheetEntryuri), service);
+                // Set the document title
+                documentEntry.Title.Text = MyPocketMoney;
 
-        }
-        public static File insertFile(String title, String description, String parentId, String mimeType, String filename)
-        {
+                // Add the document category
+                documentEntry.Categories.Add(DocumentEntry.SPREADSHEET_CATEGORY);
 
-            var credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                new ClientSecrets
+                // Make a request to the API and create the document.
+                documentsService.Insert(
+                    DocumentsListQuery.documentsBaseUri, documentEntry);
+
+                SpreadsheetFeed spreadsheetFeed = service.Query(query);
+                foreach (SpreadsheetEntry entry in spreadsheetFeed.Entries)
                 {
-                    ClientId = "403400217676-pcs2mvcgegbgsvjnc3fld9edafq8ppdu.apps.googleusercontent.com",
-                    ClientSecret = "JL622ryC3smnyrfvh08jWESD",
-                },
-                new[] { DriveService.Scope.Drive },
-                "user",
-                CancellationToken.None).Result;
+                    if (entry.Title.Text == MyPocketMoney)
+                    {
+                        mainSpreadsheetEntryuri = entry.FeedUri;
+                        return entry;
 
-            var service = new DriveService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "Drive API Sample",
-            });            // File's metadata.
-            File body = new File();
-            body.Title = title;
-            body.Description = description;
-            body.MimeType = mimeType;
-
-            // Set the parent folder.
-            if (!String.IsNullOrEmpty(parentId))
-            {
-                body.Parents = new List<ParentReference>() { new ParentReference() { Id = parentId } };
+                    }
+                }
             }
 
-            // File's content.
-            byte[] byteArray = System.IO.File.ReadAllBytes(filename);
-            MemoryStream stream = new MemoryStream(byteArray);
-            try
-            {
-                FilesResource.InsertMediaUpload request = service.Files.Insert(body, stream, mimeType);
-                request.Upload();
+            return null;
 
-                File file = request.ResponseBody;
-
-                // Uncomment the following line to print the File ID.
-                // Console.WriteLine("File ID: " + file.Id);
-
-                return file;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("An error occurred: " + e.Message);
-                return null;
-            }
         }
     }
 }
