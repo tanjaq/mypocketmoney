@@ -42,6 +42,16 @@ namespace UnitTestProject1
             GoogleDocsService service = new GoogleDocsService();
             var sheet = service.GetSetSpreadSheet();
             Assert.IsNotNull(sheet);
+        }        
+        [TestMethod]
+        public void InsertValueSheet()
+        {
+            Console.WriteLine(Assembly.GetExecutingAssembly().Location);
+            GoogleDocsService service = new GoogleDocsService();
+            var sheet = service.GetSetSpreadSheet();
+            Assert.IsNotNull(sheet);
+
+            service.InsertUpdate(new Record("", 0, true));
         }
 
 

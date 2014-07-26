@@ -12,7 +12,6 @@ using WpfApplication2.Annotations;
 
 namespace WpfApplication2.DomainObjects
 {
-    [Table(Name = "Timeranges")]
     public class TimeRange : BaseObject
     {
         private ObservableCollection<Record> _records = new ObservableCollection<Record>();
@@ -23,10 +22,8 @@ namespace WpfApplication2.DomainObjects
             Id = id;
         }
 
-        [Column]
         public DateTime StartDate { get; set; }
         public DateTime? EndTime { get; set; }
-        [Column]
         public decimal InitialAmount { get; set; }
         public Visibility ExpandVisibility
         {
@@ -39,7 +36,6 @@ namespace WpfApplication2.DomainObjects
             }
         }
 
-        [Column]
         public string Name { get; set; }
         public ObservableCollection<Record> Records
         {
@@ -71,11 +67,20 @@ namespace WpfApplication2.DomainObjects
             }
         }
 
-        [Column]
         public long NextTimeRangeId { get; set; }
-        [Column]
         public long PrevTimeRangeId { get; set; }
 
-        
+
+        public static string CurrentTableName
+        {
+            get { return "TimeRanges"; }
+        }
+
+        public static IList<string> Fields { get; set; }
+
+        public override string Tablename
+        {
+            get { return CurrentTableName; }
+        }
     }
 }

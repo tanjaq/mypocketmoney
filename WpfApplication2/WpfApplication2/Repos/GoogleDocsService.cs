@@ -10,6 +10,7 @@ using Google.Apis.Drive.v2;
 using Google.Apis.Drive.v2.Data;
 using Google.Apis.Services;
 using Google.GData.Spreadsheets;
+using WpfApplication2.DomainObjects;
 using File = Google.Apis.Drive.v2.Data.File;
 using Google.GData.Client;
 using Google.GData.Documents;
@@ -23,8 +24,8 @@ namespace WpfApplication2.Repos
         private SpreadsheetsService service;
 
         private SpreadsheetEntry mainSpreadSheet;
-        private WorksheetEntry Timeranges;
-        private WorksheetEntry Records;
+
+        private Dictionary<string, WorksheetEntry> worksheets = new Dictionary<string, WorksheetEntry>();
 
         public GoogleDocsService()
         {
@@ -45,6 +46,10 @@ namespace WpfApplication2.Repos
                 if (entry.Title.Text == MyPocketMoney)
                 {
                     mainSpreadSheet = entry;
+                    foreach (WorksheetEntry worksheet in mainSpreadSheet.Worksheets.Entries)
+                    {
+                        worksheets.Add(worksheet.Title.Text, worksheet);
+                    }
                     return entry;
 
                 }
@@ -71,17 +76,44 @@ namespace WpfApplication2.Repos
                         mainSpreadSheet = sheet;
                         WorksheetEntry timerangesWorkSheet = new WorksheetEntry();
                         timerangesWorkSheet.Title.Text = "TimeRanges";
-                        timerangesWorkSheet.Cols = 10;
-                        timerangesWorkSheet.Rows = 2000;
+                        timerangesWorkSheet.Cols = 4;
+                        timerangesWorkSheet.Rows = 1;
                         service.Insert(mainSpreadSheet.Worksheets, timerangesWorkSheet);
-                        Timeranges = timerangesWorkSheet;
+
+
+                        
+
 
                         WorksheetEntry recordsWorkSheet = new WorksheetEntry();
                         recordsWorkSheet.Title.Text = "Records";
-                        recordsWorkSheet.Cols = 10;
-                        recordsWorkSheet.Rows = 2000;
+                        recordsWorkSheet.Cols = 4;
+                        recordsWorkSheet.Rows = 1;
                         service.Insert(mainSpreadSheet.Worksheets, recordsWorkSheet);
-                        Records = recordsWorkSheet;
+
+                        foreach (WorksheetEntry worksheet in mainSpreadSheet.Worksheets.Entries)
+                        {
+                            worksheets.Add(worksheet.Title.Text, worksheet);
+                        }
+                        CellQuery cellQuery = new CellQuery(worksheets[Record.CurrentTableName].CellFeedLink);
+                        CellFeed cellFeed = service.Query(cellQuery);
+
+                        // Iterate through each cell, updating its value if necessary.
+
+                        for (uint i = 0; i < Record.Fields.Count; i++)
+                        {
+                            var field = Record.Fields[(int) i];
+                            cellFeed.Insert(new CellEntry(0, i, field));
+                        }
+
+                        cellQuery = new CellQuery(worksheets[TimeRange.CurrentTableName].CellFeedLink);
+                        cellFeed = service.Query(cellQuery);
+                        for (uint i = 0; i < TimeRange.Fields.Count; i++)
+                        {
+                            var field = TimeRange.Fields[(int)i];
+                            cellFeed.Insert(new CellEntry(0, i, field));
+                        }
+                       
+                        
                         return sheet;
 
                     }
@@ -92,6 +124,27 @@ namespace WpfApplication2.Repos
 
             return null;
 
+        }
+
+        public BaseObject InsertUpdate(BaseObject item)
+        {
+            var worksheet = worksheets[item.Tablename];
+            AtomLink listFeedLink = worksheet.Links.FindService(GDataSpreadsheetsNameTable.ListRel, null);
+
+            // Fetch the list feed of the worksheet.
+            ListQuery listQuery = new ListQuery(listFeedLink.HRef.ToString());
+            ListFeed listFeed = service.Query(listQuery);
+
+            // Create a local representation of the new row.
+            ListEntry row = new ListEntry();
+            row.Elements.Add(new ListEntry.Custom() { LocalName = "namee" , Value = "dsdg" });
+            row.Elements.Add(new ListEntry.Custom() { LocalName = "id",Value = "Smit3h1" });
+            row.Elements.Add(new ListEntry.Custom() { LocalName="value", Value = "246" });
+            row.Elements.Add(new ListEntry.Custom() { LocalName = "value2",Value = "16" });
+
+            // Send the new row to the API for insertion.
+            service.Insert(listFeed, row);
+            return item;
         }
     }
 }

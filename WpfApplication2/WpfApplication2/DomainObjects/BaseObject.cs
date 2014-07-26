@@ -7,8 +7,10 @@ namespace WpfApplication2.DomainObjects
 {
     public abstract class BaseObject : INotifyPropertyChanged
     {
-        [Column(IsPrimaryKey = true ,IsDbGenerated = true)]
         public long Id { get; set; }
+
+        public abstract string Tablename { get; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

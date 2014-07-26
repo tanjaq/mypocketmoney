@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -115,6 +116,16 @@ namespace WpfApplication2.DomainObjects
         }
 
 
+        public static string CurrentTableName
+        {
+            get { return "Records"; }
+        }
 
+        public static IList<string> Fields { get; set; }
+
+        public override string Tablename
+        {
+            get { return CurrentTableName; }
+        }
     }
 }
