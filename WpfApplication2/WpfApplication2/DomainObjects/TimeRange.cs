@@ -17,6 +17,10 @@ namespace WpfApplication2.DomainObjects
         private ObservableCollection<Record> _records = new ObservableCollection<Record>();
         private Visibility _expandVisibility = Visibility.Collapsed;
 
+        public TimeRange()
+        {
+            
+        }
         public TimeRange(long id)
         {
             Id = id;
@@ -76,11 +80,32 @@ namespace WpfApplication2.DomainObjects
             get { return "TimeRanges"; }
         }
 
-        public static IList<string> Fields { get; set; }
+        public static IList<string> Fields
+        {
+            get
+            {
+                return new[]
+                {
+                    "Id",
+                    "NextTimeRangeId",
+                    "PrevTimeRangeId",
+                    "InitialAmount",
+                    "StartDate",
+                    "EndTime",
+                    "Name",
+                };
+            }
+            
+        }
 
         public override string Tablename
         {
             get { return CurrentTableName; }
+        }
+
+        public override IEnumerable<string> LocalFields
+        {
+            get { return Fields; }
         }
     }
 }

@@ -12,13 +12,13 @@ namespace UnitTestProject1
     [TestClass]
     public class UnitTest1
     {
-     
-        
+
+
         [TestMethod]
         public void TestUploadSheet()
         {
             DocumentsService service = new DocumentsService("MyDocumentsListIntegration-v1");
-            service.setUserCredentials("jetcarq@gmail.com","sxgbnaqw1");
+            service.setUserCredentials("jetcarq@gmail.com", "sxgbnaqw1");
             // TODO: Authorize the service object for a specific user (see Authorizing requests)
 
             // Instantiate a DocumentEntry object to be inserted.
@@ -42,16 +42,21 @@ namespace UnitTestProject1
             GoogleDocsService service = new GoogleDocsService();
             var sheet = service.GetSetSpreadSheet();
             Assert.IsNotNull(sheet);
-        }        
+        }
+
         [TestMethod]
-        public void InsertValueSheet()
+        public void InsertRecordLoadBack()
         {
             Console.WriteLine(Assembly.GetExecutingAssembly().Location);
             GoogleDocsService service = new GoogleDocsService();
             var sheet = service.GetSetSpreadSheet();
             Assert.IsNotNull(sheet);
 
-            service.InsertUpdate(new Record("", 0, true));
+            var record = service.InsertUpdate(new Record("test", 10, true));
+            Assert.IsTrue(record.Id > 0);
+            var loadedRecord = service.GetById<Record>(record.Id);
+            Assert.AreEqual("test",loadedRecord.Name);
+            Assert.AreEqual(10M,loadedRecord.Amount);
         }
 
 

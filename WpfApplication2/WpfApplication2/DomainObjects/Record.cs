@@ -25,7 +25,10 @@ namespace WpfApplication2.DomainObjects
         private string _name;
         private bool _isPaid;
 
-        public Record(string name, decimal amount,bool payd)
+        public Record()
+        { }
+
+        public Record(string name, decimal amount, bool payd)
         {
             oldAmount = _amount = amount;
             oldname = _name = name;
@@ -82,7 +85,7 @@ namespace WpfApplication2.DomainObjects
             }
         }
 
-        public DateTime? PaidTime { get; set; }
+        public DateTime PaidTime { get; set; }
 
         public Record Parent { get; set; }
         public long ParentId { get; set; }
@@ -116,16 +119,37 @@ namespace WpfApplication2.DomainObjects
         }
 
 
+
         public static string CurrentTableName
         {
             get { return "Records"; }
         }
 
-        public static IList<string> Fields { get; set; }
+        public static IList<string> Fields
+        {
+            get
+            {
+                return new List<string>()
+                {
+                    "Id",
+                    "Name",
+                    "PaidTime",
+                    "Amount",
+                    "IsPaid",
+                    "ParentId",
+                    "TimeRangeId",
+                };
+            }
+        }
 
         public override string Tablename
         {
             get { return CurrentTableName; }
+        }
+
+        public override IEnumerable<string> LocalFields
+        {
+            get { return Fields; }
         }
     }
 }
