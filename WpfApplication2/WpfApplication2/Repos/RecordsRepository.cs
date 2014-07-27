@@ -11,45 +11,66 @@ namespace WpfApplication2.Repos
 {
     public class RecordsRepository : IRecordsRepository
     {
-        //private SpreadsheetsService service;
+        private GoogleDocsService service;
         public RecordsRepository()
         {
-
+            service = new GoogleDocsService();
+            service.GetSetSpreadSheet();
 
         }
-        public void LoadRecords(ObservableCollection<Record> records, TimeRange lastRecord)
+        public void LoadRecords(ObservableCollection<Record> records, TimeRange timeRange)
         {
+            var loadedrecords = service.GetByQuery<Record>("TimeRangeId = {0}", timeRange.Id);
+            foreach (var loadedrecord in loadedrecords)
+            {
+                if (records.All(x => x.Id != loadedrecord.Id))
+                {
+                    if (!loadedrecord.IsPaid)
+                    {
+                        int i = 0;
+                        for (; i < records.Count; i++)
+                        {
+                            var record = records[i];
+                            if (record.IsPaid && !loadedrecord.IsPaid)
+                            {
+                                break;
+                            }
+                        }
+                        records.Insert(i, loadedrecord);
 
-            //SpreadsheetQuery query = new SpreadsheetQuery();
-            //SpreadsheetFeed feed = service.Query(query);
-            //feed
+                    }
+                    else
+                    {
+                        records.Add(loadedrecord);
+                    }
+                }
+            }
+            for (int i = 0; i < records.Count; i++)
+            {
+                if (loadedrecords.All(x => x.Id != records[i].Id))
+                {
+                    records.RemoveAt(i);
+                    i--;
+                }
+            }
 
-            //var toDoItemsInDB = from Record todo in service.Records
-            //                    where todo.TimeRangeId == lastRecord.Id
-            //                    select todo;
-            //foreach (var item in toDoItemsInDB)
-            //{
-            //    records.Add(item);
-            //}
         }
 
         public BaseObject Save(BaseObject record)
         {
-            //service.Records.InsertOnSubmit(record);
-            //service.SubmitChanges();
-            return record;
+            return service.InsertUpdate(record);
         }
 
 
         public IDictionary<long, TimeRange> LoadLastTimeRanges()
         {
             var timeranges = new Dictionary<long, TimeRange>();
-            //var toDoItemsInDB = from TimeRange todo in service.Records
-            //                    select todo;
-            //foreach (var item in toDoItemsInDB)
-            //{
-            //    timeranges.Add(item.Id, item);
-            //}
+
+            var loadedTimeRanges = service.GetByQuery<TimeRange>("");
+            foreach (var loadedTimeRange in loadedTimeRanges)
+            {
+                timeranges.Add(loadedTimeRange.Id, loadedTimeRange);
+            }
             return timeranges;
         }
 

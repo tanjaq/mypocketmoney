@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -146,32 +147,51 @@ namespace WpfApplication2.Repos
         {
 
 
+            var worksheet = worksheets[item.Tablename];
+            AtomLink listFeedLink = worksheet.Links.FindService(GDataSpreadsheetsNameTable.ListRel, null);
+            ListQuery listQuery = new ListQuery(listFeedLink.HRef.ToString());
+            if (item.Id != 0)
+            {
+                listQuery.SpreadsheetQuery = "id = " + item.Id;
+            }
+            ListFeed listFeed = service.Query(listQuery);
+
             ListEntry row = new ListEntry();
             if (item.Id == 0)
             {
                 item.Id = GenerateID(item.Tablename);
-            }
-
-            var worksheet = worksheets[item.Tablename];
-            AtomLink listFeedLink = worksheet.Links.FindService(GDataSpreadsheetsNameTable.ListRel, null);
-            ListQuery listQuery = new ListQuery(listFeedLink.HRef.ToString());
-            ListFeed listFeed = service.Query(listQuery);
-
-            foreach (var localField in item.GetDataForSaving())
-            {
-                var value = "";
-                if (localField.Value != null)
+                row = new ListEntry();
+                foreach (var localField in item.GetDataForSaving())
                 {
-                    value = localField.Value.ToString();
+                    var value = "";
+                    if (localField.Value != null)
+                    {
+                        value = localField.Value.ToString();
+                    }
+                    ListEntry.Custom custom = new ListEntry.Custom()
+                    {
+                        LocalName = localField.Key,
+                        Value = value,
+                    };
+                    row.Elements.Add(custom);
                 }
-                ListEntry.Custom custom = new ListEntry.Custom()
-                {
-                    LocalName = localField.Key,
-                    Value = value,
-                };
-                row.Elements.Add(custom);
+                service.Insert(listFeed, row);
             }
-            service.Insert(listFeed, row);
+            else
+            {
+                row = (ListEntry)listFeed.Entries[0];
+                var localField = item.GetDataForSaving();
+                foreach (ListEntry.Custom element in row.Elements)
+                {
+                    if (localField[element.LocalName] != null)
+                        element.Value = localField[element.LocalName].ToString();
+                }
+                row.Update();
+            }
+
+
+
+
             return item;
         }
 
@@ -199,12 +219,36 @@ namespace WpfApplication2.Repos
 
         public T GetById<T>(long id) where T : BaseObject
         {
+            return GetByQuery<T>("Id = {0}", id).FirstOrDefault();
+        }
+
+        public void Delete(BaseObject baseObject)
+        {
+            AtomLink listFeedLink = worksheets[baseObject.Tablename].Links.FindService(GDataSpreadsheetsNameTable.ListRel, null);
+
+            // Fetch the list feed of the worksheet.
+            ListQuery listQuery = new ListQuery(listFeedLink.HRef.ToString());
+            listQuery.SpreadsheetQuery = "id = " + baseObject.Id;
+            ListFeed listFeed = service.Query(listQuery);
+            for (int i = 0; i < listFeed.Entries.Count; i++)
+            {
+                ListEntry row = (ListEntry)listFeed.Entries[i];
+                row.Delete();
+                Debug.Assert(i == 0);
+            }
+            //worksheets[baseObject.Tablename].Update();
+
+        }
+
+        public IList<T> GetByQuery<T>(string query, params object[] parameters) where T : BaseObject
+        {
+            var resultList = new List<T>();
             var loadedValue = Activator.CreateInstance<T>();
             AtomLink listFeedLink = worksheets[loadedValue.Tablename].Links.FindService(GDataSpreadsheetsNameTable.ListRel, null);
 
             // Fetch the list feed of the worksheet.
             ListQuery listQuery = new ListQuery(listFeedLink.HRef.ToString());
-            listQuery.SpreadsheetQuery = "id = " + id;
+            listQuery.SpreadsheetQuery = string.Format(query.ToLower(), parameters);
             ListFeed listFeed = service.Query(listQuery);
             foreach (ListEntry row in listFeed.Entries)
             {
@@ -214,10 +258,10 @@ namespace WpfApplication2.Repos
                     keyValues.Add(element.LocalName, element.Value);
                 }
                 loadedValue.SetValues(keyValues);
-                return loadedValue;
-
+                resultList.Add(loadedValue);
+                loadedValue = Activator.CreateInstance<T>();
             }
-            return default(T);
+            return resultList;
         }
     }
 }

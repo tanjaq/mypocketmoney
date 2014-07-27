@@ -18,7 +18,7 @@ namespace WpfApplication2.Repos
             timeRanges.Add(1, new TimeRange(1) { Name = "test1", InitialAmount = 1300, StartDate = new DateTime(2014, 2, 12), NextTimeRangeId = 2 });
             timeRanges.Add(3, new TimeRange(3) { Name = "janvar", InitialAmount = 1200, StartDate = new DateTime(2014, 1, 12), PrevTimeRangeId = 2 });
         }
-        public void LoadRecords(ObservableCollection<Record> records, TimeRange lastRecord)
+        public void LoadRecords(ObservableCollection<Record> records, TimeRange timeRange)
         {
             records.Add(new Record("1", 1, false));
             records.Add(new Record("mashina", 1, false));

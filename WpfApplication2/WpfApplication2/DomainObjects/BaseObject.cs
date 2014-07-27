@@ -16,6 +16,7 @@ namespace WpfApplication2.DomainObjects
 
         }
 
+        public bool LoadingFromDatabase;
         public abstract string Tablename { get; }
 
         public IDictionary<string, object> GetDataForSaving()
@@ -34,6 +35,7 @@ namespace WpfApplication2.DomainObjects
 
         public void SetValues(IDictionary<string, string> keyvalues)
         {
+            LoadingFromDatabase = true;
             foreach (var field in this.LocalFields)
             {
                 var property = this.GetType().GetProperty(field);
@@ -52,6 +54,13 @@ namespace WpfApplication2.DomainObjects
                 {
                     value = Convert.ToDateTime(value);
                 }
+                if (property.PropertyType == typeof(DateTime?))
+                {
+                    if (string.IsNullOrEmpty(value.ToString()))
+                        value = null;
+                    else
+                        value = Convert.ToDateTime(value);
+                }
                 if (property.PropertyType == typeof(bool))
                 {
                     value = Convert.ToBoolean(value);
@@ -62,6 +71,8 @@ namespace WpfApplication2.DomainObjects
                 }
                 property.SetValue(this, value, null);
             }
+            LoadingFromDatabase = false;
+
         }
 
         public abstract IEnumerable<string> LocalFields { get; }

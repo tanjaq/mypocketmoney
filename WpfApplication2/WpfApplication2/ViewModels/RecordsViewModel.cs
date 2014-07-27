@@ -64,6 +64,7 @@ namespace WpfApplication2.ViewModels
             obj.oldAmount = obj.Amount;
             obj.oldname = obj.Name;
             obj.oldPaid = obj.IsPaid;
+            obj.TimeRangeId = CurrenTimeRange.Id;
             obj.PropertyChangedValidator();
             RecordsRepository.Save(obj);
             CurrenTimeRange.OnPropertyChanged("WillSpendAmount");
@@ -102,7 +103,7 @@ namespace WpfApplication2.ViewModels
             {
                 return;
             }
-            var record = new Record(Name, amount, IsPaid);
+            var record = new Record(Name, amount, IsPaid,CurrenTimeRange.Id);
             CurrenTimeRange.Records.Add(record);
             RecordsRepository.Save(record);
             Name = "";

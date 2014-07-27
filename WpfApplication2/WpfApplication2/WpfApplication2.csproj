@@ -188,7 +188,6 @@
     <Compile Include="Repos\GoogleDocsService.cs" />
     <Compile Include="Repos\LocalXmlStorage.cs" />
     <Compile Include="Repos\RepoCollection.cs" />
-    <Compile Include="Repos\TestRepository.cs" />
     <Compile Include="Services\IDispatcher.cs" />
     <Compile Include="Repos\IRecordsRepository.cs" />
     <Compile Include="Repos\RecordsRepository.cs" />

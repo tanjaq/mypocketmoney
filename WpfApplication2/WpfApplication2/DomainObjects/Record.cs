@@ -28,14 +28,15 @@ namespace WpfApplication2.DomainObjects
         public Record()
         { }
 
-        public Record(string name, decimal amount, bool payd)
+        public Record(string name, decimal amount, bool payd, long timerangeId)
         {
             oldAmount = _amount = amount;
             oldname = _name = name;
             oldPaid = _isPaid = payd;
+            TimeRangeId = timerangeId;
         }
 
-        public int TimeRangeId { get; set; }
+        public long TimeRangeId { get; set; }
 
 
         public string Name
@@ -44,6 +45,9 @@ namespace WpfApplication2.DomainObjects
             set
             {
                 _name = value;
+                if (LoadingFromDatabase)
+                    oldname = value;
+
                 PropertyChangedValidator();
                 OnPropertyChanged();
             }
@@ -67,6 +71,8 @@ namespace WpfApplication2.DomainObjects
             set
             {
                 _amount = value;
+                if (LoadingFromDatabase)
+                    oldAmount = value;
                 PropertyChangedValidator();
                 OnPropertyChanged();
 
@@ -80,6 +86,9 @@ namespace WpfApplication2.DomainObjects
             {
                 if (value.Equals(_isPaid)) return;
                 _isPaid = value;
+                if (LoadingFromDatabase)
+                    oldPaid = value;
+
                 OnPropertyChanged();
                 PropertyChangedValidator();
             }

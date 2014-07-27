@@ -10,7 +10,7 @@ namespace WpfApplication2.Repos
 {
     public interface IRecordsRepository
     {
-        void LoadRecords(ObservableCollection<Record> records, TimeRange lastRecord);
+        void LoadRecords(ObservableCollection<Record> records, TimeRange timeRange);
         BaseObject Save(BaseObject record);
         IDictionary<long, TimeRange> LoadLastTimeRanges();
     }
